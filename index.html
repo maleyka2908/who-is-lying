@@ -7,15 +7,70 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="landing-container">
-        <div class="hero-content">
+
+    <!-- Task #2: Landing Page -->
+    <section id="landing-page" class="page active">
+        <div class="card-container">
             <h1 class="game-title">WHO IS LYING?</h1>
             <p class="game-subtitle">Heç kimə güvənmə. Hər şeyi sorğula. Yalançını tap.</p>
-            <button id="start-game-btn" class="cta-button">Oyuna Başla</button>
+            <button id="start-btn" class="primary-btn">Oyuna Başla</button>
         </div>
-    </div>
+    </section>
 
-    <!-- JS faylları -->
+    <!-- Task #3: Case Selection Page -->
+    <section id="case-selection-page" class="page">
+        <div class="card-container wide">
+            <h2>Araşdırmaq Üçün Keys Seçin</h2>
+            <div class="case-cards-wrapper">
+                <div class="case-card">
+                    <h3>Case #001: IT Depozit Oğurluğu</h3>
+                    <p>Ofisdə qiymətli əşya itib. 4 şübhəlinin ifadəsi var.</p>
+                    <button class="select-case-btn" onclick="showScreen('profiles-page')">Bu Keysi Seç</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Task #4: Suspect Profiles Page -->
+    <section id="profiles-page" class="page">
+        <div class="card-container wide">
+            <h2>Şübhəli Profilləri</h2>
+            <div class="profiles-grid">
+                <div class="suspect-card">
+                    <div class="avatar">🕵️‍♂️</div>
+                    <h3>Əli Məmmədov</h3>
+                    <p class="role">Sistem Administratoru</p>
+                    <p class="statement">"Mən saat 15:00-da server otağında idim, heç kimi görmədim."</p>
+                </div>
+                <div class="suspect-card">
+                    <div class="avatar">👩‍💻</div>
+                    <h3>Leyla Həsənova</h3>
+                    <p class="role">Proqramçı</p>
+                    <p class="statement">"Mən bütün günü öz masamda kod yazırdım."</p>
+                </div>
+            </div>
+            <button class="primary-btn" onclick="showScreen('evidence-page')">Sübutlara Bax</button>
+        </div>
+    </section>
+
+    <!-- Task #5: Evidence Interface -->
+    <section id="evidence-page" class="page">
+        <div class="card-container wide">
+            <h2>Sübutlar Və Qeydlər</h2>
+            <div class="evidence-list">
+                <div class="evidence-item">
+                    <h4>🔍 Kamera Qeydləri</h4>
+                    <p>Saat 15:05-də server otağının qapısı açılıb.</p>
+                </div>
+                <div class="evidence-item">
+                    <h4>💳 Kart Keçid Tarixçəsi</h4>
+                    <p>Əlinin kartı saat 15:00-da turniketdən keçib.</p>
+                </div>
+            </div>
+            <button class="primary-btn solve-btn">Yalançını Məhkəməyə Ver!</button>
+        </div>
+    </section>
+
     <script src="js/data.js"></script>
     <script src="js/app.js"></script>
 </body>
