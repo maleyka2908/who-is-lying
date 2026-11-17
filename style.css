@@ -17,10 +17,26 @@ body {
 
 .page {
     width: 100%;
-    display: flex;
+    display: none; /* Başlanğıcda bütün səhifələr gizlidir */
     justify-content: center;
 }
 
+/* Yalnız 'active' sinfi olan səhifə görünəcək */
+.page.active {
+    display: flex; 
+}
+
+/* Toplanmış dəlillərin vizual görünüşü (Task #7 üçün) */
+.evidence-item.collected {
+    border-color: #2ed573;
+    background-color: #1e2d24;
+    opacity: 0.8;
+}
+.evidence-item.collected h4::after {
+    content: " ✔️ (Toplandı)";
+    color: #2ed573;
+    font-size: 0.85rem;
+}
 .card-container {
     background: #1a1a24;
     border: 1px solid #2a2a3d;
