@@ -1,45 +1,29 @@
-# Who Is Lying? — Online Multiplayer
+# Who Is Lying? — Detective + Online Multiplayer (v3)
 
-A real-time social deduction browser game for **3–12 players**, with private roles, room codes, live updates, voting, results, and a scoreboard.
+Holberton final-project inspired detective investigation platform with a separate real-time multiplayer party game.
+
+## Features
+- **Detective Cases:** three mysteries with difficulty levels, suspect profiles, digital messages, timelines, collectible evidence, final accusation, and score feedback.
+- **Progress:** detective case progress and best result persist in the same browser with `localStorage`.
+- **Online Party:** room codes, 3–12 players, private roles, secret words, live voting and scoreboard.
+- **Room chat:** real-time text chat for everyone in the same multiplayer room; 400-character message limit and basic spam throttling.
+- Responsive dark interface; no database or paid service required to test.
 
 ## Run locally
-
-1. Install Node.js 18 or newer from https://nodejs.org/
-2. Open this project folder in VS Code.
-3. Open Terminal → New Terminal.
-4. Run:
+Requires Node.js 18 or later.
 
 ```bash
 npm start
 ```
 
-5. Open **http://localhost:3000** in your browser. **Do not use Live Server for this version**: the Node.js server handles rooms and real-time updates.
+Open http://localhost:3000. To test multiplayer, use separate browsers or devices on the same network. For friends in different homes, deploy the Node.js app to a hosting provider such as Render.
 
-## Play with friends on the same Wi-Fi
+## Render deployment
+Use a **Web Service**, root directory blank (if these files are in the repo root), build command `npm install`, start command `npm start`. Upload the entire `public/` folder, not just its contents.
 
-1. Run `npm start` on your computer.
-2. Find your computer's local IPv4 address with `ipconfig` (Windows).
-3. On friends' phones connected to the same Wi-Fi, visit `http://YOUR_IPV4:3000` (e.g. `http://192.168.1.25:3000`).
-4. Allow Node.js through Windows Firewall for private networks if prompted.
-
-## Play over the internet
-
-Deploy this **Node.js web service** to a host that supports persistent Node.js processes (e.g. Render or Railway). Use `npm start` as the start command. Share the deployed HTTPS URL. **GitHub Pages cannot run the multiplayer backend.**
-
-## How to play
-
-- Host creates a room and shares the 6-character code or invite link.
-- Friends join with their names (3–12 players).
-- Host starts the round. Everyone except one randomly chosen liar sees the same word.
-- Discuss the word without saying it directly. The liar tries to blend in.
-- Everyone votes once for someone else. After all votes, the game reveals the liar.
-- Detectives each earn 2 points for a correct vote outcome; otherwise the liar earns 3 points. A tie counts as a liar win.
-- Host starts another round; scores carry over.
-
-## Technical notes
-
-- **No third-party packages**: built with Node.js built-in `http` and Server-Sent Events (SSE).
-- Rooms and scores are stored **in server memory** and reset when the server restarts. No database or accounts yet.
-- Each browser stores a private session token in localStorage to reconnect after refresh.
-- One device/browser session per player is recommended. Rejoining mid-round is not supported for new players.
-- This is a playable prototype, not a hardened production service. For a public launch, add persistent storage, rate limiting, room expiry/cleanup controls, and stronger authentication.
+## Notes
+- Chat and rooms are stored **in server memory**, not in a database. They disappear on a server restart or a free-host sleep/redeploy.
+- Detective cases are authored examples, not AI-generated or verified real-world incidents.
+- Party chat is not encrypted end-to-end and has no moderation. Avoid sharing personal information.
+- Case investigations are **single-player** in this MVP; the online party mode has multiplayer chat. Collaborative case investigation would require additional server-side state.
+- For production use, add authentication, durable persistence, moderation, stronger rate limiting, and automated tests.

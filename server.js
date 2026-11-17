@@ -14,7 +14,7 @@ function snapshot(room, player) {
  players:room.players.map(p=>({id:p.id,name:p.name,connected:p.connected,score:p.score, voted:!!room.votes[p.id]})),
  role: room.phase==='lobby' ? null : (player.id===room.liar ? 'LIAR':'DETECTIVE'),
  word: room.phase==='lobby' ? null : (player.id===room.liar ? null : room.word),
- votesCast:Object.keys(room.votes).length, result:room.phase==='result'?room.result:null};
+ chat:(room.chat||[]).slice(-80).map(m=>({id:m.id,name:m.name,text:m.text,time:m.time})), votesCast:Object.keys(room.votes).length, result:room.phase==='result'?room.result:null};
 }
 function broadcast(room) { for (const p of room.players) { const msg = `data: ${JSON.stringify(snapshot(room,p))}\n\n`; for(const res of p.streams) {try {res.write(msg)}catch{p.streams.delete(res)}} } }
 function err(msg){const e=new Error(msg);e.status=400;throw e;}
@@ -22,11 +22,22 @@ const words=['Museum','Volcano','Library','Airport','Chocolate','Submarine','Pyr
 function start(room) { if(room.players.length<3)err('At least 3 players are required.'); room.round++; room.phase='playing';room.votes={};room.result=null;room.word=words[crypto.randomInt(words.length)];room.liar=room.players[crypto.randomInt(room.players.length)].id; broadcast(room); }
 function action(body) {
  const a=body.action;
- if(a==='create') {const name=clean(body.name);if(!name)err('Enter your name.');let c;do{c=code()}while(rooms.has(c));const p={id:uid(),token:uid(),name,score:0,connected:true,streams:new Set()};const r={code:c,host:p.id,players:[p],phase:'lobby',round:0,votes:{},result:null,lastActive:Date.now()};rooms.set(c,r);return {code:c,token:p.token};}
+ if(a==='create') {const name=clean(body.name);if(!name)err('Enter your name.');let c;do{c=code()}while(rooms.has(c));const p={id:uid(),token:uid(),name,score:0,connected:true,streams:new Set()};const r={code:c,host:p.id,players:[p],phase:'lobby',round:0,votes:{},result:null,chat:[],lastActive:Date.now()};rooms.set(c,r);return {code:c,token:p.token};}
  const c=String(body.code||'').toUpperCase().trim(),r=rooms.get(c);if(!r)err('Room not found. Check the code.');r.lastActive=Date.now();
  if(a==='join'){if(r.phase!=='lobby')err('Game already started. Join next round.');if(r.players.length>=12)err('Room is full (12 players).');const name=clean(body.name);if(!name)err('Enter your name.');if(r.players.some(p=>p.name.toLowerCase()===name.toLowerCase()))err('That name is taken in this room.');const p={id:uid(),token:uid(),name,score:0,connected:true,streams:new Set()};r.players.push(p);broadcast(r);return {code:c,token:p.token};}
  const p=findPlayer(r,body.token);if(!p)err('Session not found. Rejoin the room.');
  if(a==='state')return snapshot(r,p);
+ if(a==='chat'){
+  const text=String(body.text||'').trim().replace(/[\u0000-\u001f]/g,' ').slice(0,400);
+  if(!text)err('Message cannot be empty.');
+  if(!p.lastMessage)p.lastMessage=0;
+  if(Date.now()-p.lastMessage<750)err('Please wait before sending again.');
+  p.lastMessage=Date.now();
+  r.chat=r.chat||[];
+  r.chat.push({id:uid(),name:p.name,text,time:Date.now()});
+  if(r.chat.length>80)r.chat.shift();
+  broadcast(r);return {ok:true};
+ }
  if(a==='start'){if(r.host!==p.id)err('Only host can start.');if(!['lobby','result'].includes(r.phase))err('Game already running.');start(r);return {ok:true};}
  if(a==='vote'){if(r.phase!=='playing')err('Voting is closed.');if(r.votes[p.id])err('You already voted.');if(!r.players.some(x=>x.id===body.target))err('Invalid vote.');if(body.target===p.id)err('You cannot vote for yourself.');r.votes[p.id]=body.target;
  if(Object.keys(r.votes).length===r.players.length){const counts={};for(const id of Object.values(r.votes))counts[id]=(counts[id]||0)+1;const max=Math.max(...Object.values(counts));const leaders=Object.keys(counts).filter(id=>counts[id]===max);const accused=leaders.length===1?leaders[0]:null;const caught=accused===r.liar;if(caught){for(const x of r.players)if(x.id!==r.liar)x.score+=2;}else{findPlayer(r,r.players.find(x=>x.id===r.liar).token).score+=3;}r.result={liar:r.liar,word:r.word,accused,caught,tie:leaders.length!==1,counts};r.phase='result';}
@@ -47,7 +58,7 @@ const server=http.createServer(async(req,res)=>{
  req.on('close',()=>{clearInterval(heartbeat);p.streams.delete(res);p.connected=p.streams.size>0;broadcast(r);});return;
  }
  if(req.method!=='GET'){send(res,405,{error:'Method not allowed'});return;}
- const files={'/':'index.html','/index.html':'index.html','/style.css':'style.css','/app.js':'app.js'};
+ const files={'/':'index.html','/index.html':'index.html','/style.css':'style.css','/app.js':'app.js','/cases.js':'cases.js','/detective.js':'detective.js'};
  const file=files[u.pathname];if(!file){res.writeHead(404);res.end('Not found');return;}
  const types={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'application/javascript; charset=utf-8'};
  fs.readFile(path.join(__dirname,'public',file),(e,data)=>{if(e){res.writeHead(500);res.end('Server error');return;}res.writeHead(200,{'Content-Type':types[path.extname(file)]});res.end(data);});
